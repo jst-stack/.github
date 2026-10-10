@@ -1,0 +1,47 @@
+name: Architecture rule false positive
+description: Report valid code rejected by the JST policy plugin.
+title: "rule: false positive in "
+labels: [bug, "architecture decision", "needs reproduction"]
+body:
+  - type: input
+    id: rule
+    attributes:
+      label: Rule and diagnostic
+      placeholder: jst/import-contract — Cross-slice imports must use the public API
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Plugin, ESLint, and Node versions
+    validations:
+      required: true
+  - type: textarea
+    id: valid_case
+    attributes:
+      label: Smallest valid code shape
+      description: Include ownership, dependency direction, and why the code should be accepted.
+      render: typescript
+    validations:
+      required: true
+  - type: textarea
+    id: invalid_case
+    attributes:
+      label: Similar invalid code that must remain rejected
+      render: typescript
+    validations:
+      required: true
+  - type: textarea
+    id: configuration
+    attributes:
+      label: Relevant jst.config.ts overrides
+      render: typescript
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I can provide an adversarial test separating the valid and invalid cases.
+          required: true
+        - label: I did not disable the rule to hide the problem.
+          required: true

@@ -1,0 +1,48 @@
+name: CLI generation failure
+description: Report a create-jst failure or an invalid generated project.
+title: "cli: "
+labels: [bug, "needs reproduction"]
+body:
+  - type: input
+    id: command
+    attributes:
+      label: Exact command
+      placeholder: npm create jst@latest my-app -- --yes --style scss
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Node, npm or pnpm, and create-jst versions.
+    validations:
+      required: true
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Failure phase
+      options: [Prompts or arguments, Template download, Configuration, Dependency installation, Git initialization, Generated validation]
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Complete relevant output
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction and expected result
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: The destination was empty before generation.
+          required: true
+        - label: This report contains no tokens, credentials, or private source code.
+          required: true

@@ -1,0 +1,38 @@
+name: Compatibility regression
+description: Report a supported React, Router, Node, npm, pnpm, browser, or OS combination that stopped working.
+title: "compatibility: "
+labels: [bug, "breaking change", "needs reproduction"]
+body:
+  - type: input
+    id: versions
+    attributes:
+      label: Complete version matrix
+      description: Template, create-jst, plugin, React, Router, Node, package manager, OS, and browser where relevant.
+    validations:
+      required: true
+  - type: input
+    id: last_working
+    attributes:
+      label: Last known working combination
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Deterministic reproduction
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Failing check output
+      render: shell
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: The failing combination is listed as supported in jst.compatibility.json.
+          required: true

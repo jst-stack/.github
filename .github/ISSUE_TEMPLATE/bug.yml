@@ -1,0 +1,54 @@
+name: Bug report
+description: Report a reproducible defect in JST, its CLI, policy plugin, or showcase.
+title: "bug: "
+labels: [bug, "needs reproduction"]
+body:
+  - type: dropdown
+    id: project
+    attributes:
+      label: Affected project
+      options: [jst, create-jst, eslint-plugin, jst-showcase]
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: JST, create-jst, plugin, Node, and package-manager versions.
+      placeholder: "JST 0.4.15; create-jst 0.4.17; Node 24.15; npm 11"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Link a repository or provide the shortest deterministic steps.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation output
+      description: Include the relevant `npm run validate`, `npm run check`, or failing command output.
+      render: shell
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched open and closed issues for the same problem.
+          required: true
+        - label: This report contains no secrets or private vulnerability details.
+          required: true

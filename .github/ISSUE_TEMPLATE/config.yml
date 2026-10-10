@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Usage and architecture questions
+    url: https://github.com/jst-stack/jst/discussions/categories/q-a
+    about: Ask for help without turning the question into an actionable bug.
+  - name: Security vulnerability
+    url: https://github.com/jst-stack/jst/security/advisories/new
+    about: Report vulnerabilities privately. Do not open a public issue.

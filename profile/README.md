@@ -18,3 +18,13 @@ The starter includes React, framework SSR, TypeScript, DI, generated routes, CSS
 - [jst-showcase](https://github.com/jst-stack/jst-showcase) — the live reference application
 
 [Open the showcase](https://jst-snowy.vercel.app) · [Read the documentation](https://github.com/jst-stack/jst#readme)
+
+## Community
+
+Ask usage questions, propose architecture changes, and show what you built in [JST Discussions](https://github.com/jst-stack/jst/discussions). Reproducible defects belong in the affected repository's issue tracker; security reports must use private vulnerability reporting.
+
+Contributions follow the organization [governance](https://github.com/jst-stack/.github/blob/main/GOVERNANCE.md), [contribution guide](https://github.com/jst-stack/.github/blob/main/CONTRIBUTING.md), and [AI-assisted contribution policy](https://github.com/jst-stack/.github/blob/main/AI_ASSISTED_CONTRIBUTIONS.md).
+
+## Sustain JST
+
+Sponsorship funds compatibility work, architecture-rule maintenance, cross-platform CLI testing, migrations, security response, documentation, AI-agent evaluations, and performance regression checks. [Sponsor the maintainer](https://github.com/sponsors/antonbelous0v); sponsorship never purchases technical decisions, private features, or a support SLA.

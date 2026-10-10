@@ -1,0 +1,44 @@
+name: Architecture rule proposal or false positive
+description: Propose an enforceable rule or report a valid design rejected by JST.
+title: "architecture: "
+labels: ["architecture decision"]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Request type
+      options: [False positive, New rule, Existing rule change, Compatibility exception]
+    validations:
+      required: true
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Concrete use case
+      description: Show the smallest real code shape and the user outcome it supports.
+    validations:
+      required: true
+  - type: textarea
+    id: current
+    attributes:
+      label: Current diagnostic or missing protection
+    validations:
+      required: true
+  - type: textarea
+    id: boundary
+    attributes:
+      label: Ownership and dependency impact
+      description: Explain the responsible layer, permitted dependency direction, and alternatives considered.
+    validations:
+      required: true
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility and migration
+      description: State default-policy, configuration, generated-project, and migration effects.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I can provide an adversarial test that distinguishes valid and invalid code.
+          required: true

@@ -7,7 +7,7 @@ body:
     id: project
     attributes:
       label: Affected project
-      options: [jst, create-jst, eslint-plugin, jst-showcase]
+      options: [jst, create-jst, eslint-plugin-quality, eslint-plugin-architecture, eslint-plugin, jst-showcase]
     validations:
       required: true
   - type: input

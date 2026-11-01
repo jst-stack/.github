@@ -10,15 +10,6 @@ npm create jst@latest my-app
 
 The starter includes React, framework SSR, TypeScript, DI, generated routes, CSS or SCSS modules, Docker, unit and end-to-end tests, and a complete quality pipeline. Start with a working product foundation, then add business code without rebuilding the guardrails.
 
-## Projects
-
-- [jst](https://github.com/jst-stack/jst) — the application template and architecture documentation
-- [create-jst](https://github.com/jst-stack/create-jst) — the project creation CLI
-- [eslint-plugin-quality](https://github.com/jst-stack/eslint-plugin-quality) — reusable TypeScript and React quality rules
-- [eslint-plugin-architecture](https://github.com/jst-stack/eslint-plugin-architecture) — enforceable architecture, dependency, and workspace contracts
-- [eslint-plugin](https://github.com/jst-stack/eslint-plugin) — compatibility bundle for existing JST projects
-- [jst-showcase](https://github.com/jst-stack/jst-showcase) — the live reference application
-
 [Open the showcase](https://jst-showcase.vercel.app/) · [Read the documentation](https://github.com/jst-stack/jst#readme)
 
 ## Community

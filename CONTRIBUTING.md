@@ -14,4 +14,6 @@ Pull requests must explain the problem, chosen solution, verification, compatibi
 
 Questions belong in [Discussions](https://github.com/jst-stack/jst/discussions). Reproducible defects belong in Issues. Breaking or ecosystem-wide changes require an RFC discussion first.
 
+Read [REPOSITORY_HEALTH.md](REPOSITORY_HEALTH.md) to see which signal blocks a pull request, which blocks a release, and which is only a radar.
+
 Read [AI_ASSISTED_CONTRIBUTIONS.md](AI_ASSISTED_CONTRIBUTIONS.md) when an AI tool materially assisted the contribution, and follow the [Code of Conduct](CODE_OF_CONDUCT.md) in every project space.

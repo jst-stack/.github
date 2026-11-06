@@ -40,7 +40,7 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     environment: ${{ inputs.environment }}
     permissions:
       contents: write
@@ -102,11 +102,17 @@ jobs:
         working-directory: ${{ inputs.package-directory }}
         run: |
           package="${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}"
-          for attempt in {1..12}; do
-            npm view "$package" version dist.integrity dist.attestations && exit 0
-            [ "$attempt" -eq 12 ] && exit 1
+          for attempt in {1..20}; do
+            npm view "$package" version dist.integrity && break
+            [ "$attempt" -eq 20 ] && exit 1
             sleep 15
           done
+          for attempt in {1..20}; do
+            npm view "$package" dist.attestations.provenance.predicateType && exit 0
+            [ "$attempt" -eq 20 ] && exit 1
+            sleep 15
+          done
+
       - name: Tag the released version
         working-directory: ${{ inputs.package-directory }}
         run: |

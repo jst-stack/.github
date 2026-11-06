@@ -25,6 +25,8 @@ Releases are mechanical, so nobody tags or publishes by hand:
 
 Both workflows live in `jst-stack/.github` and are called from each package repository, so the release path has one implementation.
 
+The caller keeps the filename `publish.yml`: npm trusted publishing binds to the workflow filename, so renaming it makes the registry reject the upload with `404 Not Found` even though the job holds `id-token: write`. No `NPM_TOKEN` secret is involved; authentication is the OIDC token alone.
+
 ## Release propagation SLO
 
 | Signal | Target | If missed |

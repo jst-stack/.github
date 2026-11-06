@@ -1,0 +1,80 @@
+name: npm release guard
+
+on:
+  workflow_call:
+    inputs:
+      base-sha:
+        description: Commit that the pull request targets.
+        type: string
+        required: true
+      head-sha:
+        description: Commit that the pull request adds. Defaults to the checked out commit.
+        type: string
+        required: false
+        default: ''
+      package-directory:
+        description: Directory that holds package.json.
+        type: string
+        required: false
+        default: .
+      source-paths:
+        description: Comma separated directories that carry published behaviour.
+        type: string
+        required: false
+        default: src,lib,rules
+
+permissions:
+  contents: read
+
+jobs:
+  release-metadata:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Verify the release metadata matches the change
+        env:
+          BASE_SHA: ${{ inputs.base-sha }}
+          HEAD_SHA: ${{ inputs.head-sha }}
+          PACKAGE_DIRECTORY: ${{ inputs.package-directory }}
+          SOURCE_PATHS: ${{ inputs.source-paths }}
+        run: |
+          node --input-type=module --eval "
+          import { execFileSync } from 'node:child_process';
+          import { readFileSync } from 'node:fs';
+          import { join } from 'node:path';
+
+          const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
+          const base = process.env.BASE_SHA;
+          const head = process.env.HEAD_SHA || process.env.GITHUB_SHA;
+          const directory = process.env.PACKAGE_DIRECTORY.replace(/\/$/, '') || '.';
+          const sources = process.env.SOURCE_PATHS.split(',').map((entry) => entry.trim()).filter(Boolean);
+          const manifest = JSON.parse(readFileSync(join(directory, 'package.json'), 'utf8'));
+          const prefix = directory === '.' ? '' : directory + '/';
+          const previous = JSON.parse(git('show', base + ':' + prefix + 'package.json')).version;
+          const changed = git('diff', '--name-only', base, head).split('\n').filter(Boolean);
+          const touchesSources = changed.some((path) => sources.some((source) => path === source || path.startsWith(source + '/')));
+
+          if (previous === manifest.version) {
+            if (touchesSources) {
+              console.error('Changed ' + sources.join(', ') + ' without bumping ' + manifest.name + ' from ' + previous + '.');
+              console.error('Bump the version in package.json and add a CHANGELOG.md entry for it.');
+              process.exit(1);
+            }
+            console.log(manifest.name + ' stays at ' + previous + ': nothing published changed.');
+            process.exit(0);
+          }
+
+          const changelog = readFileSync(join(directory, 'CHANGELOG.md'), 'utf8').split('\n').map((line) => line.trim());
+          if (!changelog.includes('## ' + manifest.version)) {
+            console.error('CHANGELOG.md has no entry for ' + manifest.version + '.');
+            console.error('Document the change before merging; the release workflow publishes and tags it automatically.');
+            process.exit(1);
+          }
+
+          console.log(manifest.name + ': ' + previous + ' -> ' + manifest.version + ', changelog entry found.');
+          "

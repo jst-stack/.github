@@ -11,9 +11,19 @@ Every JST repository runs the same kinds of checks. This page states which signa
 
 ## Blocks a release
 
-- The tag matches `package.json` and `CHANGELOG.md` documents the version being published.
+- The release workflow publishes exactly the `package.json` version and refuses a version that `CHANGELOG.md` does not document.
 - The released-artifact canary passes: projects are created and checked from the published CLI, template, and plugins with npm and pnpm.
 - The compatibility contract holds: the template tag pinned by `create-jst`, `jst.compatibility.json`, the template `engines.node`, and the published package versions describe the same supported combination.
+
+## Publishing an npm package
+
+Releases are mechanical, so nobody tags or publishes by hand:
+
+1. A pull request that changes published behaviour (`src`, `lib`, `rules`, or `bin` by default) must bump `package.json` and add a `## <version>` entry to `CHANGELOG.md`. The `npm release guard` workflow fails the pull request otherwise; documentation-only changes pass untouched.
+2. After the merge, the `npm release` workflow runs the quality gate, skips versions that already exist in the registry, publishes the rest with provenance, waits until the registry serves the new version, then creates the `v<version>` tag and the GitHub release itself.
+3. The workflow is idempotent: re-running it on an already published version only re-checks the artifact and re-creates a missing tag or release.
+
+Both workflows live in `jst-stack/.github` and are called from each package repository, so the release path has one implementation.
 
 ## Release propagation SLO
 

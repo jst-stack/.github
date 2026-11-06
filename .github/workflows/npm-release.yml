@@ -1,0 +1,120 @@
+name: npm release
+
+on:
+  workflow_call:
+    inputs:
+      package-directory:
+        description: Directory that holds package.json.
+        type: string
+        required: false
+        default: .
+      node-version-file:
+        description: File that pins the Node.js version.
+        type: string
+        required: false
+        default: .nvmrc
+      install-command:
+        description: Command that installs the workspace.
+        type: string
+        required: false
+        default: npm ci
+      check-command:
+        description: Command that runs the quality gate.
+        type: string
+        required: false
+        default: npm run check
+      access:
+        description: npm access level for the published package.
+        type: string
+        required: false
+        default: public
+      environment:
+        description: Deployment environment that gates publishing.
+        type: string
+        required: false
+        default: npm
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: ${{ inputs.environment }}
+    permissions:
+      contents: write
+      id-token: write
+    defaults:
+      run:
+        working-directory: ${{ inputs.package-directory }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: ${{ inputs.node-version-file }}
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Install
+        run: ${{ inputs.install-command }}
+      - name: Run the quality gate
+        run: ${{ inputs.check-command }}
+      - name: Resolve package release
+        id: package
+        run: |
+          package_name=$(node -p "require('./package.json').name")
+          package_version=$(node -p "require('./package.json').version")
+          echo "name=$package_name" >> "$GITHUB_OUTPUT"
+          echo "version=$package_version" >> "$GITHUB_OUTPUT"
+          echo "tag=v$package_version" >> "$GITHUB_OUTPUT"
+      - name: Check whether the version is already published
+        id: registry
+        run: |
+          npm view "${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}" version \
+            && echo "published=true" >> "$GITHUB_OUTPUT" || true
+      - name: Verify the changelog documents this version
+        if: steps.registry.outputs.published != 'true'
+        env:
+          VERSION: ${{ steps.package.outputs.version }}
+        run: |
+          node --input-type=module --eval "
+          import { readFile } from 'node:fs/promises';
+          const version = process.env.VERSION;
+          const changelog = await readFile('CHANGELOG.md', 'utf8');
+          if (!changelog.split('\n').map((line) => line.trim()).includes('## ' + version)) {
+            console.error('CHANGELOG.md has no entry for ' + version + '. Document the release before publishing.');
+            process.exit(1);
+          }
+          "
+      - name: Publish to the registry
+        if: steps.registry.outputs.published != 'true'
+        run: npm publish --provenance --access "${{ inputs.access }}"
+      - name: Verify the published package
+        run: |
+          package="${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}"
+          for attempt in {1..12}; do
+            npm view "$package" version dist.integrity dist.attestations && exit 0
+            [ "$attempt" -eq 12 ] && exit 1
+            sleep 15
+          done
+      - name: Tag the released version
+        run: |
+          tag="${{ steps.package.outputs.tag }}"
+          if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" > /dev/null 2>&1; then
+            echo "Tag $tag already exists."
+          else
+            gh api --method POST "repos/$GITHUB_REPOSITORY/git/refs" \
+              -f ref="refs/tags/$tag" -f sha="$GITHUB_SHA" > /dev/null
+            echo "Tagged $tag at $GITHUB_SHA."
+          fi
+      - name: Announce the release
+        run: |
+          tag="${{ steps.package.outputs.tag }}"
+          gh release view "$tag" > /dev/null 2>&1 \
+            || gh release create "$tag" --target "$GITHUB_SHA" --generate-notes

@@ -45,9 +45,6 @@ jobs:
     permissions:
       contents: write
       id-token: write
-    defaults:
-      run:
-        working-directory: ${{ inputs.package-directory }}
     env:
       GH_TOKEN: ${{ github.token }}
 
@@ -62,11 +59,14 @@ jobs:
           package-manager-cache: false
 
       - name: Install
+        working-directory: ${{ inputs.package-directory }}
         run: ${{ inputs.install-command }}
       - name: Run the quality gate
+        working-directory: ${{ inputs.package-directory }}
         run: ${{ inputs.check-command }}
       - name: Resolve package release
         id: package
+        working-directory: ${{ inputs.package-directory }}
         run: |
           package_name=$(node -p "require('./package.json').name")
           package_version=$(node -p "require('./package.json').version")
@@ -75,6 +75,7 @@ jobs:
           echo "tag=v$package_version" >> "$GITHUB_OUTPUT"
       - name: Check whether the version is already published
         id: registry
+        working-directory: ${{ inputs.package-directory }}
         run: |
           npm view "${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}" version \
             && echo "published=true" >> "$GITHUB_OUTPUT" || true
@@ -82,6 +83,7 @@ jobs:
         if: steps.registry.outputs.published != 'true'
         env:
           VERSION: ${{ steps.package.outputs.version }}
+        working-directory: ${{ inputs.package-directory }}
         run: |
           node --input-type=module --eval "
           import { readFile } from 'node:fs/promises';
@@ -94,8 +96,10 @@ jobs:
           "
       - name: Publish to the registry
         if: steps.registry.outputs.published != 'true'
+        working-directory: ${{ inputs.package-directory }}
         run: npm publish --provenance --access "${{ inputs.access }}"
       - name: Verify the published package
+        working-directory: ${{ inputs.package-directory }}
         run: |
           package="${{ steps.package.outputs.name }}@${{ steps.package.outputs.version }}"
           for attempt in {1..12}; do
@@ -104,6 +108,7 @@ jobs:
             sleep 15
           done
       - name: Tag the released version
+        working-directory: ${{ inputs.package-directory }}
         run: |
           tag="${{ steps.package.outputs.tag }}"
           if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" > /dev/null 2>&1; then
@@ -114,6 +119,7 @@ jobs:
             echo "Tagged $tag at $GITHUB_SHA."
           fi
       - name: Announce the release
+        working-directory: ${{ inputs.package-directory }}
         run: |
           tag="${{ steps.package.outputs.tag }}"
           gh release view "$tag" > /dev/null 2>&1 \
